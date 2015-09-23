@@ -445,10 +445,16 @@ namespace Mindbox.Expressions.Tests
 		[TestMethod]
 		public void QueryableExpressionCanBeExpanded()
 		{
-			Expression<Func<int, IQueryable<int>>> testExpression = t1 => Enumerable.Repeat(1, 1).AsQueryable();
+			Expression<Func<int, IQueryable<int>>> testExpression = t1 => Enumerable.Range(1, 2).AsQueryable();
 
-			testExpression = t1 => testExpression.Evaluate(t1).Where(t2 => t2 > 1);
-			testExpression.ExpandExpressions();
+			Expression<Func<int, IQueryable<int>>> anotherTestExpression = t1 => testExpression.Evaluate(t1).Where(t2 => t2 > 1);
+			anotherTestExpression = anotherTestExpression.ExpandExpressions();
+
+			var result = anotherTestExpression.Evaluate(1).ToArray();
+			Assert.AreEqual(1, result.Length);
+
+			var resultValue = result.Single();
+            Assert.AreEqual(2, resultValue);
 		}
 
 		private static Expression<Func<int, int>> DirtyGetter(int argument)
